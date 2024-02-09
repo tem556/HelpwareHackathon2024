@@ -1,0 +1,52 @@
+health_records_db=# \t;
+invalid command \t;
+Try \? for help.
+health_records_db=# \dt
+Did not find any relations.
+health_records_db=# CREATE TABLE health_records (ID VARCHAR(32), PASSWORD VARCHAR(60), AGE INT, WEIGHT FLOAT, BLOOD_TYPE VARCHAR(8), ALLERGIES VARCHAR(1024), SURGERIES VARCHAR(1024), OTHER VARCHAR(512), STATUS INT8);
+CREATE TABLE
+health_records_db=# \dt
+             List of relations
+ Schema |      Name      | Type  |  Owner   
+--------+----------------+-------+----------
+ public | health_records | table | postgres
+(1 row)
+
+health_records_db=# select * from health_records;
+ id | password | age | weight | blood_type | allergies | surgeries | other | status 
+----+----------+-----+--------+------------+-----------+-----------+-------+--------
+(0 rows)
+
+health_records_db=# INSERT (01, "yoyoy", 51, 62.1, "0+", "suing it up", "not in mood", "", 0)
+health_records_db-# ;
+ERROR:  syntax error at or near "("
+LINE 1: INSERT (01, "yoyoy", 51, 62.1, "0+", "suing it up", "not in ...
+               ^
+health_records_db=# INSERT (01, "yoyoy", 51, 62.1, "0+", "suing it up", "not in mood", "", 0) INTO hea
+
+health_records_db=# INSERT (01, "yoyoy", 51, 62.1, "0+", "suing it up", "not in mood", "", 0) INTO hea
+
+health_records_db=# INSERT INTO health_records (01, "yoyoy", 51, 62.1, "0+", "suing it up", "not in mood", "", 0);
+ERROR:  syntax error at or near "01"
+LINE 1: INSERT INTO health_records (01, "yoyoy", 51, 62.1, "0+", "su...
+                                    ^
+health_records_db=# INSERT INTO health_records VALUES (01, "yoyoy", 51, 62.1, "0+", "suing it up", "not in mood", "", 0);
+ERROR:  zero-length delimited identifier at or near """"
+LINE 1: ...oyoy", 51, 62.1, "0+", "suing it up", "not in mood", "", 0);
+                                                                ^
+health_records_db=# INSERT INTO health_records VALUES (01, "yoyoy", 51, 62.1, "0+", "suing it up", "not in mood", "1", 0);
+ERROR:  column "yoyoy" does not exist
+LINE 1: INSERT INTO health_records VALUES (01, "yoyoy", 51, 62.1, "0...
+                                               ^
+health_records_db=# INSERT INTO health_records (ID, PASSWORD, AGE, WEIGHT, BLOOD_TYPE, ALLERGIES, SURGERIES, OTHER, STATUS)  VALUES (01, "yoyoy", 51, 62.1, "0+", "suing it up", "not in mood", "1", 0);
+ERROR:  column "yoyoy" does not exist
+LINE 1: ...ALLERGIES, SURGERIES, OTHER, STATUS)  VALUES (01, "yoyoy", 5...
+                                                             ^
+health_records_db=# INSERT INTO health_records (ID, PASSWORD, AGE, WEIGHT, BLOOD_TYPE, ALLERGIES, SURGERIES, OTHER, STATUS)  VALUES (01, 'yoyoy', 51, 62.1, '0+', 'suing it up', 'not in mood', '1', 0);
+INSERT 0 1
+health_records_db=# select * from health_records;
+ id | password | age | weight | blood_type |  allergies  |  surgeries  | other | status 
+----+----------+-----+--------+------------+-------------+-------------+-------+--------
+ 1  | yoyoy    |  51 |   62.1 | 0+         | suing it up | not in mood | 1     |      0
+(1 row)
+
