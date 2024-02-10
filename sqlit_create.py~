@@ -1,0 +1,11 @@
+import sqlite3
+
+conn = sqlite3.connect('health_record.db')
+
+cursor = conn.cursor()
+
+
+cursor.execute("CREATE TABLE health_records (ID VARCHAR(32), PASSWORD VARCHAR(60), AGE INT, WEIGHT FLOAT, BLOOD_TYPE VARCHAR(8), ALLERGIES VARCHAR(1024), SURGERIES VARCHAR(1024), OTHER VARCHAR(512), STATUS INT8)")
+
+conn.commit()
+conn.close()
