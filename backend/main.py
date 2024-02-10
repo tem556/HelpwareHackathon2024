@@ -46,10 +46,10 @@ get_query = ('''SELECT * FROM health_records WHERE ID = ?''')
 
 get_all_query = ('''SELECT * FROM health_records''')
 
-insertion_query = ('''INSERT INTO health_records (ID, PASSWORD, AGE, WEIGHT, 
-                   HEIGHT, BLOOD_TYPE, ALLERGIES, SURGERIES, OTHER, STATUS)  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''')
+insertion_query = ('''INSERT INTO health_records (ID, NAME, PASSWORD, AGE, WEIGHT, 
+                   HEIGHT, BLOOD_TYPE, ALLERGIES, SURGERIES, OTHER, STATUS)  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''')
 
-update_query = ('''UPDATE health_records SET ID = ?, PASSWORD = ?, AGE = ?, WEIGHT = ?, HEIGHT = ?, BLOOD_TYPE = ?, 
+update_query = ('''UPDATE health_records SET ID = ?, NAME = ?, PASSWORD = ?, AGE = ?, WEIGHT = ?, HEIGHT = ?, BLOOD_TYPE = ?, 
                 ALLERGIES = ?, SURGERIES = ? ,OTHER = ? WHERE ID = ?''')
 
 def get_image_64(id):
@@ -90,6 +90,8 @@ def get_user_info(user_id: str):
 
         if (row[0] == "1"):
             row_dict['role'] = 'admin'
+        else:
+            row_dict['role'] = 'user'
         
         return row_dict
     else:
@@ -122,7 +124,7 @@ async def register_user(
         f.write(contents)
 
     
-    data_to_insert = (id, password, age, weight, height, blood_type, allergies, surgeries, other_conditions, 0)
+    data_to_insert = (id, name, password, age, weight, height, blood_type, allergies, surgeries, other_conditions, 0)
     cursor.execute(insertion_query, data_to_insert)
 
     conn.commit()
@@ -142,7 +144,8 @@ async def update_user_info(
     surgeries: str = Form(None),
     other_conditions: str = Form(None),
     password: str = Form(None),
-    image: str = Form(None)
+    image: str = Form(None),
+    role: str = Form(None)
 ):
     # Process the received information for update
     # For example, update the user's information in the database
@@ -164,15 +167,9 @@ async def update_user_info(
         "image": image
     }
     
-
     # Save picture locally in images folder
-    # Save picture locally in images folder
-    contents = image.file.read()
-    with open("images/" + id + ".jpg", 'wb') as f:
-        f.write(contents)
 
-    
-    data_to_update = (user_id, password, age, weight, height, blood_type, allergies, surgeries, other_conditions, user_id)
+    data_to_update = (user_id, name, password, age, weight, height, blood_type, allergies, surgeries, other_conditions, user_id)
     cursor.execute(update_query, data_to_update)
 
     conn.commit()
@@ -209,31 +206,35 @@ def get_all_users():
             row_dict['image'] = image_base64
             res.append(row_dict)
 
-            
-        
-        print("hererajalrkjlkajrlwkj")
-        # print(res)
-        json_array = json.dumps(res)
 
 
         # Print the JSON string
-        print(json_array)
+
         return res
     
     return
 
 @app.post("/api/v1/admin/user/img")
 async def register_user(
-    image: str = Form(...)
+    image: UploadFile = File(...)
 ):
     # get image and save locally as test
     # for now
     # test = Image.open(BytesIO(image_data))
     # test.save("test.jpg")
-    embeddings = faiss_model.generate_embeddings("images/")
-    prediction = faiss_model.get_prediction("test.jpg",embeddings)
+
+    
+    contents = image.file.read()
+    with open("test.jpg", 'wb') as f:
+        f.write(contents)
+
+    embeddings, names = faiss_model.generate_embeddings("./images")
+    print(embeddings)
+    prediction = faiss_model.get_prediction("./test.jpg", embeddings, names)
+    print(prediction)
 
     id = prediction[0][0][0:-4]
+    print(id)
 
         # Execute the SELECT query with the ID as a parameter
     # Search for the user with the provided user_id
@@ -243,10 +244,15 @@ async def register_user(
     row = cursor.fetchone()
 
     # Create a dictionary from the row data
+    print("hi")
     if row:
         column_names = [description[0] for description in cursor.description]
 
+        for i in range(len(column_names)):
+            column_names[i] = column_names[i].lower()
+
         # get id to get image
+        print("yo")
         id = row[0]
         
         # get image if possible
@@ -254,6 +260,7 @@ async def register_user(
 
         row_dict = dict(zip(column_names, row))
         row_dict['image'] = image_64
+        print(row_dict)
 
         return row_dict
     else:

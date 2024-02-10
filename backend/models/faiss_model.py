@@ -31,19 +31,20 @@ def find_similar_faces(query_img_path, index, embeddings, names, k=1):
     return [(names[i], D[0][j]) for j, i in enumerate(I[0])]
 
 
-def get_prediction(query_img_path, embeddings):
+def get_prediction(query_img_path, embeddings, names):
     # Create and train the FAISS index
     index = create_faiss_index(embeddings)
 
     # Find the most similar face(s) for the input image
     similar_faces = find_similar_faces(query_img_path, index, embeddings, names, k=1)
     print("Most similar faces:", similar_faces)
+    return similar_faces
 
 
 # folder_path = '../images'
 # query_img_path = '../test.jpg'
 
-# # Generate embeddings for the images in the folder
+# # # # Generate embeddings for the images in the folder
 # embeddings, names = generate_embeddings(folder_path)
 # get_prediction(query_img_path, embeddings)
 
